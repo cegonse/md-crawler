@@ -1,0 +1,2 @@
+spritesheet.png: https://opengameart.org/content/dungeon-crawl-32x32-tiles-supplemental
+Dawnbringer: https://opengameart.org/content/tiny-16-basic
