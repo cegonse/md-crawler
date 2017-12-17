@@ -18,7 +18,16 @@
             "type": "shell",
             "command": "/opt/blastem/blastem",
             "args": [
-                "${workspaceRoot}/out/rom.bin"
+                "-g", "${workspaceRoot}/out/rom.bin", "800", "600"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean"
             ],
             "problemMatcher": []
         }

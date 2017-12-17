@@ -29,16 +29,16 @@ static void detectControllers(u8 *controllers)
 	second_port_state = JOY_getJoypadType(PORT_2);
 
 	if (first_port_state == JOY_TYPE_PAD3) {
-		*controllers |= CONTROLLER_STATE_ONE_3BTN;
+		*controllers |= kCONTROLLER_STATE_ONE_3BTN;
 	} else if (first_port_state == JOY_TYPE_PAD6) {
-		*controllers |= CONTROLLER_STATE_ONE_6BTN;
+		*controllers |= kCONTROLLER_STATE_ONE_6BTN;
 	}
 
 	if (second_port_state == JOY_TYPE_PAD3) {
-		*controllers |= CONTROLLER_STATE_TWO_3BTN;
+		*controllers |= kCONTROLLER_STATE_TWO_3BTN;
 	}
 	else if (second_port_state == JOY_TYPE_PAD6) {
-		*controllers |= CONTROLLER_STATE_TWO_6BTN;
+		*controllers |= kCONTROLLER_STATE_TWO_6BTN;
 	}
 }
 
@@ -47,9 +47,11 @@ void System_Init(u8 *controllers)
 {
 	SYSTEM_GPU_SAFE
 	(
+		initVdp();
 		setScreenResolution();
-		detectControllers(controllers);
 	)
+
+	detectControllers(controllers);
 }
 
 

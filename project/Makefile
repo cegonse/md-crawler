@@ -56,11 +56,10 @@ FLAGSZ80= -i$(SRC) -i$(INCLUDE) -i$(RES) -i$(LIBSRC) -i$(LIBINCLUDE)
 
 
 release: FLAGS= $(DEFAULT_FLAGS) -O3 -flto -fuse-linker-plugin -fno-web -fno-gcse -fno-unit-at-a-time -fomit-frame-pointer -Werror
-#release: FLAGS= $(DEFAULT_FLAGS) -O1 -fomit-frame-pointer
 release: LIBMD= $(LIB)/libmd.a
 release: pre-build out/rom.bin
 
-debug: FLAGS= $(DEFAULT_FLAGS) -O1 -ggdb -DDEBUG=1 -Werror
+debug: FLAGS= $(DEFAULT_FLAGS) -O1 -g -DDEBUG=1 -Werror
 debug: LIBMD= $(LIB)/libmd.a
 debug: pre-build out/rom.bin out/rom.out out/symbol.txt
 
@@ -103,7 +102,7 @@ out/rom.bin: out/rom.out
 	$(SIZEBND) out/rom.bin -sizealign 131072
 
 out/symbol.txt: out/rom.out
-	$(NM) --plugin=liblto_plugin-0.dll -n out/rom.out > out/symbol.txt
+	$(NM) -n out/rom.out > out/symbol.txt
 
 out/rom.out: out/sega.o out/cmd_ $(LIBMD)
 	$(CC) -B$(BIN) -n -T $(GDK)/md.ld -nostdlib out/sega.o @out/cmd_ $(LIBMD) $(LIB)/libgcc.a -o out/rom.out
