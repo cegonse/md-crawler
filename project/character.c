@@ -1,6 +1,13 @@
 #include "character.h"
 
 
+static fix32 direction_table[] = {
+    [kCHARACTER_DIRECTION_NONE] = FIX32(0.0),
+    [kCHARACTER_DIRECTION_LEFT] = FIX32(-0.3),
+    [kCHARACTER_DIRECTION_RIGHT] = FIX32(0.3),
+};
+
+
 void Character_Init(Character *self)
 {
     memset(self, 0, sizeof(Character));
@@ -22,8 +29,7 @@ void Character_SetSprite(Character *self, const SpriteDefinition *sprite, u8 pal
 
     VDP_setPalette(PAL0 + palette_index, sprite->palette->data);
 
-    self->sprite = SPR_addSprite(sprite, self->position[kCHARACTER_DIRECTION_HORIZONTAL], self->position[kCHARACTER_DIRECTION_VERTICAL], 
-                        TILE_ATTR(PAL0 + palette_index, FALSE, FALSE, FALSE));
+    self->sprite = SPR_addSprite(sprite, 0, 0, TILE_ATTR(PAL0 + palette_index, FALSE, FALSE, FALSE));
 
     updateAnimation(self, kCHARACTER_ANIMATION_IDLE);
 
@@ -33,41 +39,42 @@ void Character_SetSprite(Character *self, const SpriteDefinition *sprite, u8 pal
 
 static inline void updatePosition(Character *self)
 {
-    SPR_setPosition(self->sprite, self->position[kCHARACTER_DIRECTION_HORIZONTAL], self->position[kCHARACTER_DIRECTION_VERTICAL]);
+    u16 pixel_x, pixel_y;
+
+    pixel_x = fix32ToInt(self->position.x);
+    pixel_y = fix32ToInt(self->position.y);
+
+    SPR_setPosition(self->sprite, pixel_x, pixel_y);
 }
 
 
-void Character_Update(Character *self, s8 direction)
+void Character_Update(Character *self, TCHARACTER_DIRECTION direction)
 {
-    self->position[kCHARACTER_DIRECTION_HORIZONTAL] += direction;
+    fix32 gravity = FIX32(1.0);
+    fix32 floor = FIX32(180.0);
+    fix32 friction = FIX32(0.8);
+    fix32 horizontal_direction = direction_table[direction];
 
-    if (self->acceleration[kCHARACTER_DIRECTION_VERTICAL] < 4) {
-        self->acceleration[kCHARACTER_DIRECTION_VERTICAL]++;
+    if (self->velocity.x > 0 && horizontal_direction == 0) {
+        self->velocity.x -= friction;
+    } else if (self->velocity.x < 0 && horizontal_direction == 0) {
+        self->velocity.x += friction;
     }
 
-    if (direction != 0) {
-        if ((direction > 0 && self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] < 3) ||
-            (direction < 0 && self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] > -3)) {
-            self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] += direction;
-        }
+    if (horizontal_direction != 0) {
+        self->velocity.x += horizontal_direction;
     } else {
-        if (self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] > 0) {
-            self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL]--;
-        } else if (self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] < 0) {
-            self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL]++;
-        }
+        self->velocity.x = 0;
     }
 
-    if (self->position[kCHARACTER_DIRECTION_VERTICAL] < 200) {
-        self->position[kCHARACTER_DIRECTION_VERTICAL] += self->acceleration[kCHARACTER_DIRECTION_VERTICAL];
+    if (self->position.y < floor) {
+        self->velocity.y += gravity;
     } else {
-        self->position[kCHARACTER_DIRECTION_VERTICAL] = 200;
+        self->velocity.y = 0;
     }
 
-    if ((self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] > 0 && self->position[kCHARACTER_DIRECTION_HORIZONTAL] < 300) ||
-        (self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL] < 0 && self->position[kCHARACTER_DIRECTION_HORIZONTAL] > 20)) {
-        self->position[kCHARACTER_DIRECTION_HORIZONTAL] += self->acceleration[kCHARACTER_DIRECTION_HORIZONTAL];
-    }
+    self->position.x += self->velocity.x;
+    self->position.y += self->velocity.y;
 
     updatePosition(self);
 }

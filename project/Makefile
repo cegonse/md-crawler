@@ -1,3 +1,4 @@
+GENDEV= /opt/gendev
 BIN= $(GDK)/bin
 LIB= $(GDK)/lib
 

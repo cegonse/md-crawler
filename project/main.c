@@ -8,15 +8,15 @@
 static Character main_character;
 
 static s8 joy_to_direction[16] = {
-	[0] = 0,
-	[BUTTON_UP] = 0,
-	[BUTTON_DOWN] = 0,
-	[BUTTON_UP | BUTTON_LEFT] = -1,
-	[BUTTON_DOWN | BUTTON_LEFT] = -1,
-	[BUTTON_LEFT] = -1,
-	[BUTTON_UP | BUTTON_RIGHT] = 1,
-	[BUTTON_DOWN | BUTTON_RIGHT] = 1,
-	[BUTTON_RIGHT] = 1,
+	[0] = kCHARACTER_DIRECTION_NONE,
+	[BUTTON_UP] = kCHARACTER_DIRECTION_NONE,
+	[BUTTON_DOWN] = kCHARACTER_DIRECTION_NONE,
+	[BUTTON_UP | BUTTON_LEFT] = kCHARACTER_DIRECTION_LEFT,
+	[BUTTON_DOWN | BUTTON_LEFT] = kCHARACTER_DIRECTION_LEFT,
+	[BUTTON_LEFT] = kCHARACTER_DIRECTION_LEFT,
+	[BUTTON_UP | BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
+	[BUTTON_DOWN | BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
+	[BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
 };
 
 
@@ -28,7 +28,7 @@ int main()
 
 	Character_Init(&main_character);
 	Character_SetSprite(&main_character, &basic_character_def, 1);
-	
+
 	while (1)
 	{
 		u8 pad_state = JOY_readJoypad(JOY_1);
