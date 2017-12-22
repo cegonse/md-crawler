@@ -33,7 +33,11 @@ int main()
 	{
 		u8 pad_state = JOY_readJoypad(JOY_1);
 
-		Character_Update(&main_character, joy_to_direction[pad_state]);
+		if (pad_state & BUTTON_A) {
+			Character_OnJump(&main_character);
+		}
+
+		Character_Update(&main_character, joy_to_direction[pad_state & 0xF]);
 		System_EndFrame();
 	}
 
