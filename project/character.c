@@ -75,7 +75,7 @@ static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTIO
             }
         }
     } else {
-        if (abs(self->velocity.x) < max_velocity) {
+        if (abs(self->velocity.x + direction_table[direction]) < max_velocity) {
             self->velocity.x += direction_table[direction];
         }
     }
