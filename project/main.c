@@ -3,6 +3,10 @@
 #include "system.h"
 #include "character.h"
 #include "gfx.h"
+#include "stage.h"
+
+
+#define CONTROLLER_DIRECTION_MASK(ctl)  (ctl & 0xF)
 
 
 static Character main_character;
@@ -17,6 +21,19 @@ static s8 joy_to_direction[16] = {
 	[BUTTON_UP | BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
 	[BUTTON_DOWN | BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
 	[BUTTON_RIGHT] = kCHARACTER_DIRECTION_RIGHT,
+};
+
+
+static const struct stage test_stage = {
+	.num_colliders = 1,
+	.colliders = {
+		[0] = {
+			.position.x = FIX32(-20),
+			.position.y = FIX32(200),
+			.size.x = FIX32(200),
+			.size.y = FIX32(200),
+		},
+	},
 };
 
 
@@ -37,7 +54,7 @@ int main()
 			Character_OnJump(&main_character);
 		}
 
-		Character_Update(&main_character, joy_to_direction[pad_state & 0xF]);
+		Character_Update(&main_character, joy_to_direction[CONTROLLER_DIRECTION_MASK(pad_state)], &test_stage);
 		System_EndFrame();
 	}
 

@@ -25,6 +25,8 @@ void Character_Init(Character *self)
 {
     memset(self, 0, sizeof(Character));
     self->position.x = 100;
+    self->size.x = 16;
+    self->size.y = 16;
 }
 
 
@@ -87,25 +89,27 @@ static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTIO
 }
 
 
-static inline void updateVerticalVelocity(Character *self)
+static inline void updateVerticalVelocity(Character *self, const struct stage *current_stage)
 {
-    if (self->position.y < kCHARACTER_FLOOR_LIMIT) {
+
+
+    if (self->position.y < kCHARACTER_FLOOR_LIMIT && !Stage_CheckCollisions(&self->position, &self->size, current_stage)) {
         self->velocity.y += kCHARACTER_GRAVITY;
     } else {
         if (self->velocity.y > 0) {
             self->velocity.y = 0;
             self->is_jumping = 0;
-            self->position.y = kCHARACTER_FLOOR_LIMIT;
+//            self->position.y = kCHARACTER_FLOOR_LIMIT;
         }
     }
 }
 
 
-void Character_Update(Character *self, TCHARACTER_DIRECTION direction)
+void Character_Update(Character *self, TCHARACTER_DIRECTION direction, const struct stage *current_stage)
 {
     updateHorizontalVelocity(self, direction);
 
-    updateVerticalVelocity(self);
+    updateVerticalVelocity(self, current_stage);
 
     updatePosition(self);
 }

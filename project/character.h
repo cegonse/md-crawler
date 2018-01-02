@@ -2,6 +2,7 @@
 
 #include <genesis.h>
 #include "vector2.h"
+#include "stage.h"
 
 
 #define kCHARACTER_TILE_SIZE     15
@@ -32,6 +33,7 @@ typedef struct character {
     struct vector2 position;
     struct vector2 acceleration;
     struct vector2 velocity;
+    struct vector2 size;
 
     u8 is_jumping;
 } Character;
@@ -40,6 +42,6 @@ void Character_Init(Character *self);
 
 void Character_SetSprite(Character *self, const SpriteDefinition *sprite, u8 palette_index);
 
-void Character_Update(Character *self, TCHARACTER_DIRECTION direction);
+void Character_Update(Character *self, TCHARACTER_DIRECTION direction, const struct stage *current_stage);
 
 void Character_OnJump(Character *self);
