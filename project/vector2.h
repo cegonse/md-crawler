@@ -8,4 +8,10 @@ struct vector2 {
 };
 
 
+struct vector2i {
+    s16 x;
+    s16 y;
+};
+
+
 

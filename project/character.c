@@ -7,7 +7,7 @@
 #define kCHARACTER_FRICTION                FIX32(0.8)
 #define kCHARACTER_MIN_VELOCITY            FIX32(0.3)
 #define kCHARACTER_MAX_GROUND_VELOCITY     FIX32(3.0)
-#define kCHARACTER_MAX_AIR_VELOCITY        FIX32(6.0)
+#define kCHARACTER_MAX_AIR_VELOCITY        FIX32(3.0)
 #define kCHARACTER_RIGHT_LIMIT             FIX32(290.0)
 #define kCHARACTER_LEFT_LIMIT              FIX32(10.0)
 
@@ -24,9 +24,9 @@ static fix32 direction_table[] = {
 void Character_Init(Character *self)
 {
     memset(self, 0, sizeof(Character));
-    self->position.x = 100;
-    self->size.x = 16;
-    self->size.y = 16;
+    self->position.x = FIX32(100);
+    self->size.x = FIX32(16);
+    self->size.y = FIX32(16);
 }
 
 
@@ -64,7 +64,7 @@ static inline void updatePosition(Character *self)
 }
 
 
-static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTION direction)
+static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTION direction, const struct stage *current_stage)
 {
     fix32 max_velocity = CHARACTER_IS_FALLING(self) ? kCHARACTER_MAX_AIR_VELOCITY : kCHARACTER_MAX_GROUND_VELOCITY;
 
@@ -77,7 +77,8 @@ static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTIO
             }
         }
     } else {
-        if (abs(self->velocity.x + direction_table[direction]) < max_velocity) {
+        if (abs(self->velocity.x + direction_table[direction]) < max_velocity &&
+            Stage_CheckCollisions(&self->position, &self->size, self->velocity.x + direction_table[direction], FIX32(0), current_stage) != kSTAGE_COLLISION) {
             self->velocity.x += direction_table[direction];
         }
     }
@@ -86,20 +87,27 @@ static inline void updateHorizontalVelocity(Character *self, TCHARACTER_DIRECTIO
         (self->velocity.x < 0 && self->position.x <= kCHARACTER_LEFT_LIMIT)) {
         self->velocity.x = 0;
     }
+
+    if (Stage_CheckCollisions(&self->position, &self->size, self->velocity.x, FIX32(0), current_stage) == kSTAGE_COLLISION) {
+        self->velocity.x = 0;
+    }
 }
 
 
 static inline void updateVerticalVelocity(Character *self, const struct stage *current_stage)
 {
-
-
-    if (self->position.y < kCHARACTER_FLOOR_LIMIT && !Stage_CheckCollisions(&self->position, &self->size, current_stage)) {
-        self->velocity.y += kCHARACTER_GRAVITY;
+    if (self->position.y < kCHARACTER_FLOOR_LIMIT) {
+        if (Stage_CheckCollisions(&self->position, &self->size, FIX32(0), self->velocity.y, current_stage) != kSTAGE_COLLISION) {
+            self->velocity.y += kCHARACTER_GRAVITY;
+        } else {
+            self->velocity.y = 0;
+            self->is_jumping = 0;
+        }
     } else {
         if (self->velocity.y > 0) {
             self->velocity.y = 0;
             self->is_jumping = 0;
-//            self->position.y = kCHARACTER_FLOOR_LIMIT;
+            self->position.y = kCHARACTER_FLOOR_LIMIT;
         }
     }
 }
@@ -107,7 +115,7 @@ static inline void updateVerticalVelocity(Character *self, const struct stage *c
 
 void Character_Update(Character *self, TCHARACTER_DIRECTION direction, const struct stage *current_stage)
 {
-    updateHorizontalVelocity(self, direction);
+    updateHorizontalVelocity(self, direction, current_stage);
 
     updateVerticalVelocity(self, current_stage);
 

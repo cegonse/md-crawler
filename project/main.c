@@ -25,13 +25,19 @@ static s8 joy_to_direction[16] = {
 
 
 static const struct stage test_stage = {
-	.num_colliders = 1,
+	.num_colliders = 2,
 	.colliders = {
 		[0] = {
-			.position.x = FIX32(-20),
-			.position.y = FIX32(200),
-			.size.x = FIX32(200),
-			.size.y = FIX32(200),
+			.position.x = 32,
+			.position.y =  152,
+			.size.x = 64,
+			.size.y = 16,
+		},
+		[1] = {
+			.position.x = 96,
+			.position.y =  176,
+			.size.x = 64,
+			.size.y = 16,
 		},
 	},
 };
@@ -42,6 +48,11 @@ int main()
 	u8 detected_controllers;
 
 	System_Init(&detected_controllers);
+
+	VDP_loadTileSet(&basic_tiles_def, TILE_USERINDEX, TRUE);
+	VDP_setPalette(PAL0 + 2, basic_tiles_pal_def.data);
+
+	Stage_DebugDraw(&test_stage);
 
 	Character_Init(&main_character);
 	Character_SetSprite(&main_character, &basic_character_def, 1);
